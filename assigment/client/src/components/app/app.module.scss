@@ -17,3 +17,13 @@
   justify-content: center;
   align-items: center;
 }
+
+.gameControls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  button {
+    width: 33%;
+  }
+}

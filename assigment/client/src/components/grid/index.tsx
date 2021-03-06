@@ -26,10 +26,6 @@ const Grid = () => {
     }
   }, [size])
 
-  useEffect(() => {
-    console.log(gridColums)
-  }, [gridColums])
-
   return (
     <div className={styles.wrapper} style={{transform: 'translateX(9%)'}}>
       {

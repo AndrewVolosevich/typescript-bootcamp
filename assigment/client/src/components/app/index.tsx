@@ -5,6 +5,7 @@ import styles from './app.module.scss';
 import {
   setGridSize,
   setGrid,
+  setCell,
   selectSize,
 } from '../../store/features/game/gameSlice';
 import api from '../../api/serverApi'
@@ -15,9 +16,17 @@ const keyPressHandler = (event) => {
 }
 
 const App = () => {
+  const gridSize = useSelector(selectSize)
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    api.getStartData(2).then(resp => console.log(resp))
-  }, [])
+    api.getStartData(2).then(resp => {
+      const addedCells = resp.data
+      addedCells.forEach((newCell => {
+        dispatch(setCell(newCell))
+      }))
+    })
+  }, [gridSize])
 
   useEffect(() => {
     document.addEventListener('keydown', keyPressHandler)
@@ -26,8 +35,6 @@ const App = () => {
     }
   }, [])
 
-  const gridSize = useSelector(selectSize)
-  const dispatch = useDispatch()
 
   return (
     <>
@@ -52,6 +59,26 @@ const App = () => {
         </section>
         <section className={styles.gameStatus}>
           <p>{`Game status: playing`}</p>
+          <div className={styles.gameControls}>
+            <button onClick={() => {
+
+            }}>q</button>
+            <button onClick={() => {
+
+            }}>w</button>
+            <button onClick={() => {
+
+            }}>e</button>
+            <button onClick={() => {
+
+            }}>a</button>
+            <button onClick={() => {
+
+            }}>s</button>
+            <button onClick={() => {
+
+            }}>d</button>
+          </div>
         </section>
       </main>
     </>

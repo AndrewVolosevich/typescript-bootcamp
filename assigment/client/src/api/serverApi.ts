@@ -1,9 +1,9 @@
 import axios from "axios";
 
 export default {
-  getStartData: (width: number) => {
+  getStartData: (size: number) => {
     return axios.post(
-      `http://localhost:5555/${width}`,
+      `http://localhost:5555/${size}`,
       []
     );
   },

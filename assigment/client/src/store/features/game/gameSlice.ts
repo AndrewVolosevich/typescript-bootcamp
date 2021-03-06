@@ -14,10 +14,24 @@ export const slice = createSlice({
     setGrid: (state, action) => {
       state.grid = action.payload;
     },
+    setCell: (state, action) => {
+      const index = state.grid.findIndex(cell => {
+        if (
+          cell.x === action.payload.x &&
+          cell.y === action.payload.y &&
+          cell.z === action.payload.z
+        ) {
+          return cell
+        }
+      })
+      if (state.grid[index]) {
+        state.grid[index].value = action.payload.value
+      }
+    }
   },
 });
 
-export const { setGridSize, setGrid } = slice.actions;
+export const { setGridSize, setGrid, setCell } = slice.actions;
 // export const incrementAsync = amount => dispatch => {
 //   setTimeout(() => {
 //     dispatch(incrementByAmount(amount));
