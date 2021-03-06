@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {gameGrid2} from "../../../moky/gameGrid";
+import {compareCellsCoords} from "../../../helpers/cellHelpers";
 
 export const slice = createSlice({
   name: 'game',
@@ -14,13 +15,12 @@ export const slice = createSlice({
     setGrid: (state, action) => {
       state.grid = action.payload;
     },
+    clearCells: (state) => {
+      state.grid.map((cell) => cell.value = 0)
+    },
     setCell: (state, action) => {
       const index = state.grid.findIndex(cell => {
-        if (
-          cell.x === action.payload.x &&
-          cell.y === action.payload.y &&
-          cell.z === action.payload.z
-        ) {
+        if (compareCellsCoords(cell, action.payload)) {
           return cell
         }
       })
@@ -31,7 +31,7 @@ export const slice = createSlice({
   },
 });
 
-export const { setGridSize, setGrid, setCell } = slice.actions;
+export const { setGridSize, setGrid, clearCells, setCell } = slice.actions;
 // export const incrementAsync = amount => dispatch => {
 //   setTimeout(() => {
 //     dispatch(incrementByAmount(amount));
