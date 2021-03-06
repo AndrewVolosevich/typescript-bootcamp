@@ -21,7 +21,6 @@ const App = () => {
 
   useEffect(() => {
     document.addEventListener('keydown', keyPressHandler)
-
     return () => {
       document.removeEventListener('keydown', keyPressHandler)
     }
@@ -32,19 +31,29 @@ const App = () => {
 
   return (
     <>
-      <p>{gridSize}</p>
-      <button onClick={() => {
-        dispatch(setGridSize(2))
-        dispatch(setGrid(gameGrid2))
-      }}>2</button>
-      <button onClick={() => {
-        dispatch(setGridSize(3))
-        dispatch(setGrid(gameGrid3))
-      }}>3</button>
+      <main className={styles.app}>
+        <section className={styles.gameVariant}>
+          <p>{`Game size: ${gridSize}`}</p>
 
-      <div className={styles.app} >
-        <Grid />
-      </div>
+          <div className={styles.variantControls}>
+            <button onClick={() => {
+              dispatch(setGridSize(2))
+              dispatch(setGrid(gameGrid2))
+            }}>2</button>
+            <button onClick={() => {
+              dispatch(setGridSize(3))
+              dispatch(setGrid(gameGrid3))
+            }}>3</button>
+          </div>
+        </section>
+
+        <section className={styles.gameGrid} >
+          <Grid />
+        </section>
+        <section className={styles.gameStatus}>
+          <p>{`Game status: playing`}</p>
+        </section>
+      </main>
     </>
   );
 }

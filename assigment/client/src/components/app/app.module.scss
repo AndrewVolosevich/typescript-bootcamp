@@ -2,13 +2,18 @@
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  &>section {
+    padding-bottom: 30px;
+  }
 }
 
-.container {
-  height: 420px;
-  width: 420px;
-  background-color: transparent;
-  position: relative;
+.gameVariant {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

@@ -18,7 +18,9 @@ const Cell = (props: {
        data-x={props.x}
        data-y={props.y}
        data-z={props.z}
-     />
+     >
+       <span>{props.value === 0 ? ' ' : props.value}</span>
+     </div>
    </>
   );
 }
