@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef} from "react";
 import styles from "./cell.module.scss"
 
 const Cell = (props: {
@@ -7,15 +7,17 @@ const Cell = (props: {
   z: number,
   value: number
 }) => {
+  const cellRef = useRef(null)
+
   return (
    <>
      <div
+       ref={cellRef}
        className={styles.element}
        data-value={props.value}
        data-x={props.x}
        data-y={props.y}
        data-z={props.z}
-       style={{left: '4px', top: '69.282px'}} // ???????????????????????
      />
    </>
   );
