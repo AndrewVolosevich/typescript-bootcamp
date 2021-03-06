@@ -13,8 +13,8 @@ class Server {
   async start(messageHandler = getRNGPoints) {
     this.#messageHandler = messageHandler
     this.#server = http.createServer(this.#handler)
-    this.#server.listen(13337)
-    this.#server.once("listening", () => this.#log("RNG server is listening on port 13337"))
+    this.#server.listen(5555)
+    this.#server.once("listening", () => this.#log("RNG server is listening on port 5555"))
   }
 
   end() {
