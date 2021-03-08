@@ -22,7 +22,8 @@ export const getCellIdx = (grid: Cell[], cell: Cell) => {
   return grid.findIndex(c => {
     if (compareCellsCoords(c, cell)) {
       return c
-    }
+    } else {}
+    return false
   })
 }
 

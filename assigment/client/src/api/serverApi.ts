@@ -1,7 +1,7 @@
 import axios from "axios";
 import {Cell} from "../types/game";
 
-export default {
+const api = {
   getStartData: (size: number) => {
     return axios.post(
       `http://localhost:5555/${size}`,
@@ -15,3 +15,5 @@ export default {
     );
   }
 }
+
+export default api;

@@ -1,5 +1,8 @@
 import React, {useRef} from "react";
-import styles from "./cell.module.scss"
+import classNames from 'classnames';
+import { useSelector } from 'react-redux';
+import {selectSize} from "../../store/features/game/gameSlice";
+import styles from "./cell.module.scss";
 
 const Cell = (props: {
   x: number,
@@ -8,12 +11,17 @@ const Cell = (props: {
   value: number
 }) => {
   const cellRef = useRef(null)
+  const size = useSelector(selectSize)
 
+  const cellClasses = classNames(styles.element, {
+    [styles.size3]: size === 3,
+    [styles.size4]: size === 4,
+  })
   return (
    <>
      <div
        ref={cellRef}
-       className={styles.element}
+       className={cellClasses}
        data-value={props.value}
        data-x={props.x}
        data-y={props.y}

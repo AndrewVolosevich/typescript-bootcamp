@@ -1,21 +1,14 @@
 .app {
-  width: 100vw;
-  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
   &>section {
-    padding-bottom: 30px;
+    padding-bottom: 20px;
   }
-}
-
-.gameVariant {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .gameControls {
