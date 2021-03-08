@@ -13,8 +13,7 @@ import {
 } from '../../store/features/game/gameSlice';
 import api from '../../api/serverApi'
 import {gameGrid2, gameGrid3} from "../../moky/gameGrid";
-import {getCellIdx, getSortCells, getSortCells1, isCellExist} from "../../helpers/cellHelpers";
-import {log} from "util";
+import {getCellIdx, getSortCells, isCellExist} from "../../helpers/cellHelpers";
 import {Cell} from "../../types/game";
 
 const keyPressHandler = (event, q,w,e,a,s,d) => {
@@ -66,36 +65,11 @@ const App = () => {
     }
   }, [playing])
 
-  function pow(x, n) {
-    if (n == 1) {
-      return x;
-    } else {
-      return x * pow(x, n - 1);
-    }
-  }
-
-  function checkNext(cell, max, min) {
-    console.log(cell)
+  function checkNext(gridValue: Cell[], cell: Cell, max: string, min: string) {
     const newCell = {...cell}
-    let result = {...cell}
-    newCell[max] += 1
-    newCell[min] -= 1
-    dispatch(clearCellValue(cell))
-
-    if (isCellExist(grid, newCell)) {
-      if (grid[getCellIdx(grid, newCell)].value === 0) {
-        result = {...newCell}
-        dispatch(setCell(result))
-      }
-      return checkNext(newCell, 'y', 'z')
-    } else {
-      dispatch(setCell(cell))
-    }
-  }
-
-  function checkNext1(gridValue: Cell[], cell: Cell, max: string, min: string) {
-    const newCell = {...cell}
-    const newGridValue = JSON.parse(JSON.stringify(gridValue))
+    const newGridValue = JSON.parse(JSON.stringify(gridValue)).map(item => {
+      return {...item, isChanged: false}
+    })
     newCell[max] += 1
     newCell[min] -= 1
 
@@ -103,53 +77,60 @@ const App = () => {
       if (newGridValue[getCellIdx(newGridValue, newCell)].value === 0) {
         newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value
         newGridValue[getCellIdx(newGridValue, cell)].value = 0
-        return checkNext1(newGridValue, newCell, 'y', 'z')
+        return checkNext(newGridValue, newCell, max, min)
+      } else if (
+        newGridValue[getCellIdx(newGridValue, newCell)].value === cell.value &&
+        !newGridValue[getCellIdx(newGridValue, newCell)].isChanged
+      ) {
+        newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value * 2
+        newGridValue[getCellIdx(newGridValue, newCell)].isChanged = true
+        newGridValue[getCellIdx(newGridValue, cell)].value = 0
+        return checkNext(newGridValue, newCell, max, min)
       }
     }
     return newGridValue
   }
+  function moveHandler(max: string, min: string) {
+    let innerGrid = JSON.parse(JSON.stringify(grid))
+    getSortCells(grid,  max, min).forEach(cell => {
+      innerGrid = checkNext(innerGrid, cell, max, min)
+    })
+    dispatch(clearCells())
+    innerGrid.forEach(cell => dispatch(setCell(cell)))
+    const filledCells = getSortCells(innerGrid,  max, min)
+    api
+      .uploadNewData(gridSize, filledCells)
+      .then(resp => {
+        resp.data.forEach(item => {
+          console.log(item)
+          dispatch(setCell(item))
+        })
+      })
+  }
 
   const moveUpHandler = () => {
     console.log('up')
-    let innerGrid = JSON.parse(JSON.stringify(grid))
-    getSortCells(grid,  'y', 'z').forEach(cell => {
-      innerGrid = checkNext1(innerGrid, cell, 'y', 'z')
-    })
-    dispatch(clearCells())
-    innerGrid.forEach(cell => dispatch(setCell(cell)))
+    moveHandler('y', 'z')
   }
   const moveDownHandler = () => {
     console.log('down')
-    let innerGrid = JSON.parse(JSON.stringify(grid))
-    getSortCells(grid,  'z', 'y').forEach(cell => {
-      innerGrid = checkNext1(innerGrid, cell, 'z', 'y')
-    })
-    dispatch(clearCells())
-    innerGrid.forEach(cell => dispatch(setCell(cell)))
+    moveHandler('z', 'y')
   }
   const moveLeftTopHandler = () => {
     console.log('leftTop')
-    getSortCells(grid, 'y', 'z').forEach(cell => {
-      checkNext(cell, 'y', 'z')
-    })
+    moveHandler('y', 'x')
   }
   const moveRightBottomHandler = () => {
     console.log('rightBottom')
-    getSortCells(grid, 'x', 'y').forEach(cell => {
-      checkNext(cell, 'x', 'y')
-    })
+    moveHandler('x', 'y')
   }
   const moveLeftBottomHandler = () => {
     console.log('leftBottom')
-    getSortCells(grid, 'z', 'x').forEach(cell => {
-      checkNext(cell, 'z', 'x')
-    })
+    moveHandler('z', 'x')
   }
   const moveRightTopHandler = () => {
     console.log('rightTop')
-    getSortCells(grid, 'x', 'z').forEach(cell => {
-      checkNext(cell, 'x', 'z')
-    })
+    moveHandler('x', 'z')
   }
 
   const addFetchCells = (value: number) => {

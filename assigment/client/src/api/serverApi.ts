@@ -1,4 +1,5 @@
 import axios from "axios";
+import {Cell} from "../types/game";
 
 export default {
   getStartData: (size: number) => {
@@ -7,4 +8,11 @@ export default {
       []
     );
   },
+  uploadNewData: (size: number, filledData: Cell[]) => {
+    console.log(filledData)
+    return axios.post(
+      `http://localhost:5555/${size}`,
+      filledData
+    );
+  }
 }
