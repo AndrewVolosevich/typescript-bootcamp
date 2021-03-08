@@ -111,18 +111,21 @@ const App = () => {
 
   const moveUpHandler = () => {
     console.log('up')
-    console.log(getSortCells(grid,  'y', 'z'))
+    let innerGrid = JSON.parse(JSON.stringify(grid))
     getSortCells(grid,  'y', 'z').forEach(cell => {
-      const newArr = checkNext1(grid, cell, 'y', 'z')
-      dispatch(clearCells())
-      newArr.forEach(cell => dispatch(setCell(cell)))
+      innerGrid = checkNext1(innerGrid, cell, 'y', 'z')
     })
+    dispatch(clearCells())
+    innerGrid.forEach(cell => dispatch(setCell(cell)))
   }
   const moveDownHandler = () => {
     console.log('down')
-    getSortCells(grid, 'z', 'y').forEach(cell => {
-      checkNext(cell, 'z', 'y')
+    let innerGrid = JSON.parse(JSON.stringify(grid))
+    getSortCells(grid,  'z', 'y').forEach(cell => {
+      innerGrid = checkNext1(innerGrid, cell, 'z', 'y')
     })
+    dispatch(clearCells())
+    innerGrid.forEach(cell => dispatch(setCell(cell)))
   }
   const moveLeftTopHandler = () => {
     console.log('leftTop')
