@@ -6,167 +6,160 @@ import {
   setGridSize,
   setGrid,
   setCell,
+  setPlaying,
+  clearCellValue,
   clearCells,
-  selectSize, selectGrid,
+  selectSize, selectGrid, selectPlaying
 } from '../../store/features/game/gameSlice';
 import api from '../../api/serverApi'
 import {gameGrid2, gameGrid3} from "../../moky/gameGrid";
-import {getCellIdx, getSortCells, isCellExist} from "../../helpers/cellHelpers";
+import {getCellIdx, getSortCells, getSortCells1, isCellExist} from "../../helpers/cellHelpers";
+import {log} from "util";
+import {Cell} from "../../types/game";
 
-const keyPressHandler = (event) => {
-  // console.log(`Key: ${event.key} with keycode ${event.keyCode} has been pressed`)
+const keyPressHandler = (event, q,w,e,a,s,d) => {
+  switch (event.key) {
+    case 'q':
+      q()
+      break
+    case 'w':
+      w()
+      break
+    case 'e':
+      e()
+      break
+    case 'a':
+      a()
+      break
+    case 's':
+      s()
+      break
+    case 'd':
+      d()
+      break
+    default:
+      break
+  }
 }
-
 const App = () => {
   const gridSize = useSelector(selectSize)
   const grid = useSelector(selectGrid)
+  const playing = useSelector(selectPlaying)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    api.getStartData(2).then(resp => {
-      const addedCells = resp.data
-      addedCells.forEach((newCell => {
-        dispatch(setCell(newCell))
-      }))
-    })
-  }, [gridSize])
-
-  useEffect(() => {
-    document.addEventListener('keydown', keyPressHandler)
-    return () => {
-      document.removeEventListener('keydown', keyPressHandler)
+    if (playing) {
+      document.addEventListener('keydown', (e) => {
+        keyPressHandler(
+          e, moveLeftTopHandler, moveUpHandler,
+          moveRightTopHandler, moveLeftBottomHandler,
+          moveDownHandler, moveRightBottomHandler)
+      })
+      return () => {
+        document.removeEventListener('keydown', (e) => {
+          keyPressHandler(
+            e, moveLeftTopHandler, moveUpHandler,
+            moveRightTopHandler, moveLeftBottomHandler,
+            moveDownHandler, moveRightBottomHandler)
+        })
+      }
     }
-  }, [])
+  }, [playing])
+
+  function pow(x, n) {
+    if (n == 1) {
+      return x;
+    } else {
+      return x * pow(x, n - 1);
+    }
+  }
+
+  function checkNext(cell, max, min) {
+    console.log(cell)
+    const newCell = {...cell}
+    let result = {...cell}
+    newCell[max] += 1
+    newCell[min] -= 1
+    dispatch(clearCellValue(cell))
+
+    if (isCellExist(grid, newCell)) {
+      if (grid[getCellIdx(grid, newCell)].value === 0) {
+        result = {...newCell}
+        dispatch(setCell(result))
+      }
+      return checkNext(newCell, 'y', 'z')
+    } else {
+      dispatch(setCell(cell))
+    }
+  }
+
+  function checkNext1(gridValue: Cell[], cell: Cell, max: string, min: string) {
+    const newCell = {...cell}
+    const newGridValue = JSON.parse(JSON.stringify(gridValue))
+    newCell[max] += 1
+    newCell[min] -= 1
+
+    if (isCellExist(gridValue, newCell)) {
+      if (newGridValue[getCellIdx(newGridValue, newCell)].value === 0) {
+        newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value
+        newGridValue[getCellIdx(newGridValue, cell)].value = 0
+        return checkNext1(newGridValue, newCell, 'y', 'z')
+      }
+    }
+    return newGridValue
+  }
 
   const moveUpHandler = () => {
-    const cellsWithValues = getSortCells(grid, 'x').map(cell => {
-      const newCell = {...cell}
-      let result = {...cell}
-
-      while (isCellExist(grid, newCell)) {
-        newCell.y += 1
-        newCell.z -= 1
-        if (isCellExist(grid, newCell)) {
-          if (grid[getCellIdx(grid, newCell)].value === 0) {
-            result = {...newCell}
-          }
-        }
-      }
-      return result
-    })
-    dispatch(clearCells())
-    cellsWithValues.forEach(cell => {
-      dispatch(setCell(cell))
+    console.log('up')
+    console.log(getSortCells(grid,  'y', 'z'))
+    getSortCells(grid,  'y', 'z').forEach(cell => {
+      const newArr = checkNext1(grid, cell, 'y', 'z')
+      dispatch(clearCells())
+      newArr.forEach(cell => dispatch(setCell(cell)))
     })
   }
-
   const moveDownHandler = () => {
-    const cellsWithValues = getSortCells(grid, 'x').map(cell => {
-      let newCell = {...cell}
-      let result = {...cell}
-
-      while (isCellExist(grid, newCell)) {
-        newCell.y -= 1
-        newCell.z += 1
-        if (isCellExist(grid, newCell)) {
-          if (grid[getCellIdx(grid, newCell)].value === 0) {
-            result = {...newCell}
-          }
-        }
-      }
-      return result
-    })
-    dispatch(clearCells())
-    cellsWithValues.forEach(cell => {
-      dispatch(setCell(cell))
+    console.log('down')
+    getSortCells(grid, 'z', 'y').forEach(cell => {
+      checkNext(cell, 'z', 'y')
     })
   }
-
   const moveLeftTopHandler = () => {
-    const cellsWithValues = getSortCells(grid, 'z').map(cell => {
-      let newCell = {...cell}
-      let result = {...cell}
-
-      while (isCellExist(grid, newCell)) {
-        newCell.x -= 1
-        newCell.y += 1
-        if (isCellExist(grid, newCell)) {
-          if (grid[getCellIdx(grid, newCell)].value === 0) {
-            result = {...newCell}
-          }
-        }
-      }
-      return result
-    })
-    dispatch(clearCells())
-    cellsWithValues.forEach(cell => {
-      dispatch(setCell(cell))
+    console.log('leftTop')
+    getSortCells(grid, 'y', 'z').forEach(cell => {
+      checkNext(cell, 'y', 'z')
     })
   }
-
   const moveRightBottomHandler = () => {
-    const cellsWithValues = getSortCells(grid, 'z').map(cell => {
-      let newCell = {...cell}
-      let result = {...cell}
-
-      while (isCellExist(grid, newCell)) {
-        newCell.x += 1
-        newCell.y -= 1
-        if (isCellExist(grid, newCell)) {
-          if (grid[getCellIdx(grid, newCell)].value === 0) {
-            result = {...newCell}
-          }
-        }
-      }
-      return result
-    })
-    dispatch(clearCells())
-    cellsWithValues.forEach(cell => {
-      dispatch(setCell(cell))
+    console.log('rightBottom')
+    getSortCells(grid, 'x', 'y').forEach(cell => {
+      checkNext(cell, 'x', 'y')
     })
   }
-
   const moveLeftBottomHandler = () => {
-    const cellsWithValues = getSortCells(grid, 'y').map(cell => {
-      let newCell = {...cell}
-      let result = {...cell}
-
-      while (isCellExist(grid, newCell)) {
-        newCell.x -= 1
-        newCell.z += 1
-        if (isCellExist(grid, newCell)) {
-          if (grid[getCellIdx(grid, newCell)].value === 0) {
-            result = {...newCell}
-          }
-        }
-      }
-      return result
+    console.log('leftBottom')
+    getSortCells(grid, 'z', 'x').forEach(cell => {
+      checkNext(cell, 'z', 'x')
     })
-    dispatch(clearCells())
-    cellsWithValues.forEach(cell => {
-      dispatch(setCell(cell))
+  }
+  const moveRightTopHandler = () => {
+    console.log('rightTop')
+    getSortCells(grid, 'x', 'z').forEach(cell => {
+      checkNext(cell, 'x', 'z')
     })
   }
 
-  const moveRightTopHandler = () => {
-    const cellsWithValues = getSortCells(grid, 'y').map(cell => {
-      let newCell = {...cell}
-      let result = {...cell}
+  const addFetchCells = (value: number) => {
+    api.getStartData(value)
+      .then(resp => {
+        const addedCells = resp.data
+        addedCells.forEach((newCell => {
+          dispatch(setCell(newCell))
+        }))
+      })
+      .then(() => {
+      dispatch(setPlaying(true))
 
-      while (isCellExist(grid, newCell)) {
-        newCell.x += 1
-        newCell.z -= 1
-        if (isCellExist(grid, newCell)) {
-          if (grid[getCellIdx(grid, newCell)].value === 0) {
-            result = {...newCell}
-          }
-        }
-      }
-      return result
-    })
-    dispatch(clearCells())
-    cellsWithValues.forEach(cell => {
-      dispatch(setCell(cell))
     })
   }
 
@@ -178,12 +171,18 @@ const App = () => {
 
           <div className={styles.variantControls}>
             <button onClick={() => {
+              dispatch(setPlaying(false))
+              dispatch(clearCells())
               dispatch(setGridSize(2))
               dispatch(setGrid(gameGrid2))
+              addFetchCells(2)
             }}>2</button>
             <button onClick={() => {
+              dispatch(setPlaying(false))
+              dispatch(clearCells())
               dispatch(setGridSize(3))
               dispatch(setGrid(gameGrid3))
+              addFetchCells(3)
             }}>3</button>
           </div>
         </section>
@@ -214,7 +213,7 @@ const App = () => {
             }}>d</button>
           </div>
           <button onClick={() => {
-
+            dispatch(clearCellValue({x: 0, y: 0, z: 0, value: 2}))
           }}>
             test
           </button>

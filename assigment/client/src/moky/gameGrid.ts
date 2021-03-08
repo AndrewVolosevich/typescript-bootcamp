@@ -54,7 +54,7 @@ export const gameGrid3 = [
   {
     x: -2,
     y: 1,
-    z: 2,
+    z: 1,
     value: 0
   },
   {
@@ -110,13 +110,13 @@ export const gameGrid3 = [
   {
     x: 0,
     y: -1,
-    z: -1,
+    z: 1,
     value: 0
   },
   {
     x: 0,
     y: -2,
-    z: -2,
+    z: 2,
     value: 0
   },
 
