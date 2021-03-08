@@ -97,28 +97,29 @@ const App = () => {
     return newGridValue
   }
   function moveHandler(max: string, min: string) {
-    let innerGrid = JSON.parse(JSON.stringify(grid))
-    getSortCells(grid,  max, min).forEach(cell => {
-      innerGrid = checkNext(innerGrid, cell, max, min)
-    })
-    dispatch(clearCells())
-    innerGrid.forEach(cell => dispatch(setCell(cell)))
-    const isFull = () => {
-      return !innerGrid.filter(item => item.value === 0).length
-    }
-    console.log(isFull())
-    if (isFull()) {
-      dispatch(setPlaying(false))
-    } else {
-      const filledCells = getSortCells(innerGrid,  max, min)
-      api
-        .uploadNewData(gridSize, filledCells)
-        .then(resp => {
-          resp.data.forEach(item => {
-            console.log(item)
-            dispatch(setCell(item))
+    if (playing) {
+      let innerGrid = JSON.parse(JSON.stringify(grid))
+      getSortCells(grid,  max, min).forEach(cell => {
+        innerGrid = checkNext(innerGrid, cell, max, min)
+      })
+      dispatch(clearCells())
+      innerGrid.forEach(cell => dispatch(setCell(cell)))
+      const isFull = () => {
+        return !innerGrid.filter(item => item.value === 0).length
+      }
+      console.log(isFull())
+      if (isFull()) {
+        dispatch(setPlaying(false))
+      } else {
+        const filledCells = getSortCells(innerGrid,  max, min)
+        api
+          .uploadNewData(gridSize, filledCells)
+          .then(resp => {
+            resp.data.forEach(item => {
+              dispatch(setCell(item))
+            })
           })
-        })
+      }
     }
   }
 
