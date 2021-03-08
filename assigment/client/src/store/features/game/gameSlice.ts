@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {gameGrid2} from "../../../moky/gameGrid";
-import {compareCellsCoords, getCellIdx} from "../../../helpers/cellHelpers";
+import {getCellIdx} from "../../../helpers/cellHelpers";
 
 export const slice = createSlice({
   name: 'game',

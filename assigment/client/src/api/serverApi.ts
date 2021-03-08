@@ -9,7 +9,6 @@ export default {
     );
   },
   uploadNewData: (size: number, filledData: Cell[]) => {
-    console.log(filledData)
     return axios.post(
       `http://localhost:5555/${size}`,
       filledData

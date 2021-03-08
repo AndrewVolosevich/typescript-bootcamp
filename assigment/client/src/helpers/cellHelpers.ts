@@ -1,14 +1,5 @@
 import {Cell} from "../types/game";
 
-export const getSortCells1 = (arr: Cell[], cellIndex: string) => {
-  const filteredArr = arr.filter(cell => cell.value !== 0)
-  const resp = filteredArr.slice().sort((a, b) => {
-    return b[cellIndex] - a[cellIndex]
-  })
-  console.log(resp)
-  return resp
-}
-
 export const getSortCells = (arr: Cell[], maxIndex: string, minIndex: string) => {
   const filteredArr = arr.filter(cell => cell.value !== 0)
   const resp = filteredArr.slice()

@@ -7,7 +7,6 @@ import {
   setGrid,
   setCell,
   setPlaying,
-  clearCellValue,
   clearCells,
   selectSize, selectGrid, selectPlaying
 } from '../../store/features/game/gameSlice';
@@ -54,14 +53,21 @@ const App = () => {
           moveRightTopHandler, moveLeftBottomHandler,
           moveDownHandler, moveRightBottomHandler)
       })
-      return () => {
-        document.removeEventListener('keydown', (e) => {
-          keyPressHandler(
-            e, moveLeftTopHandler, moveUpHandler,
-            moveRightTopHandler, moveLeftBottomHandler,
-            moveDownHandler, moveRightBottomHandler)
-        })
-      }
+    } else {
+      document.removeEventListener('keydown', (e) => {
+        keyPressHandler(
+          e, moveLeftTopHandler, moveUpHandler,
+          moveRightTopHandler, moveLeftBottomHandler,
+          moveDownHandler, moveRightBottomHandler)
+      })
+    }
+    return () => {
+      document.removeEventListener('keydown', (e) => {
+        keyPressHandler(
+          e, moveLeftTopHandler, moveUpHandler,
+          moveRightTopHandler, moveLeftBottomHandler,
+          moveDownHandler, moveRightBottomHandler)
+      })
     }
   }, [playing])
 
@@ -97,15 +103,23 @@ const App = () => {
     })
     dispatch(clearCells())
     innerGrid.forEach(cell => dispatch(setCell(cell)))
-    const filledCells = getSortCells(innerGrid,  max, min)
-    api
-      .uploadNewData(gridSize, filledCells)
-      .then(resp => {
-        resp.data.forEach(item => {
-          console.log(item)
-          dispatch(setCell(item))
+    const isFull = () => {
+      return !innerGrid.filter(item => item.value === 0).length
+    }
+    console.log(isFull())
+    if (isFull()) {
+      dispatch(setPlaying(false))
+    } else {
+      const filledCells = getSortCells(innerGrid,  max, min)
+      api
+        .uploadNewData(gridSize, filledCells)
+        .then(resp => {
+          resp.data.forEach(item => {
+            console.log(item)
+            dispatch(setCell(item))
+          })
         })
-      })
+    }
   }
 
   const moveUpHandler = () => {
@@ -175,7 +189,7 @@ const App = () => {
           <Grid />
         </section>
         <section className={styles.gameStatus}>
-          <p>{`Game status: playing`}</p>
+          <p>{`Game status: ${playing ? 'plaing' : 'stopped'}`}</p>
           <div className={styles.gameControls}>
             <button onClick={() => {
               moveLeftTopHandler()
@@ -196,11 +210,6 @@ const App = () => {
               moveRightBottomHandler()
             }}>d</button>
           </div>
-          <button onClick={() => {
-            dispatch(clearCellValue({x: 0, y: 0, z: 0, value: 2}))
-          }}>
-            test
-          </button>
         </section>
       </main>
     </>
