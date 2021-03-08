@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useCallback, useEffect} from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import Grid from "../grid";
 import styles from './app.module.scss';
@@ -8,68 +8,20 @@ import {
   setCell,
   setPlaying,
   clearCells,
-  selectSize, selectGrid, selectPlaying
+  addStep,
+  selectSize, selectGrid, selectPlaying, selectStep
 } from '../../store/features/game/gameSlice';
 import api from '../../api/serverApi'
 import {gameGrid2, gameGrid3} from "../../moky/gameGrid";
 import {getCellIdx, getSortCells, isCellExist} from "../../helpers/cellHelpers";
 import {Cell} from "../../types/game";
 
-const keyPressHandler = (event, q,w,e,a,s,d) => {
-  switch (event.key) {
-    case 'q':
-      q()
-      break
-    case 'w':
-      w()
-      break
-    case 'e':
-      e()
-      break
-    case 'a':
-      a()
-      break
-    case 's':
-      s()
-      break
-    case 'd':
-      d()
-      break
-    default:
-      break
-  }
-}
 const App = () => {
   const gridSize = useSelector(selectSize)
   const grid = useSelector(selectGrid)
   const playing = useSelector(selectPlaying)
+  const step = useSelector(selectStep)
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    if (playing) {
-      document.addEventListener('keydown', (e) => {
-        keyPressHandler(
-          e, moveLeftTopHandler, moveUpHandler,
-          moveRightTopHandler, moveLeftBottomHandler,
-          moveDownHandler, moveRightBottomHandler)
-      })
-    } else {
-      document.removeEventListener('keydown', (e) => {
-        keyPressHandler(
-          e, moveLeftTopHandler, moveUpHandler,
-          moveRightTopHandler, moveLeftBottomHandler,
-          moveDownHandler, moveRightBottomHandler)
-      })
-    }
-    return () => {
-      document.removeEventListener('keydown', (e) => {
-        keyPressHandler(
-          e, moveLeftTopHandler, moveUpHandler,
-          moveRightTopHandler, moveLeftBottomHandler,
-          moveDownHandler, moveRightBottomHandler)
-      })
-    }
-  }, [playing])
 
   function checkNext(gridValue: Cell[], cell: Cell, max: string, min: string) {
     const newCell = {...cell}
@@ -107,7 +59,6 @@ const App = () => {
       const isFull = () => {
         return !innerGrid.filter(item => item.value === 0).length
       }
-      console.log(isFull())
       if (isFull()) {
         dispatch(setPlaying(false))
       } else {
@@ -119,32 +70,27 @@ const App = () => {
               dispatch(setCell(item))
             })
           })
+          .then(() => dispatch(addStep()))
       }
     }
   }
 
   const moveUpHandler = () => {
-    console.log('up')
     moveHandler('y', 'z')
   }
   const moveDownHandler = () => {
-    console.log('down')
     moveHandler('z', 'y')
   }
   const moveLeftTopHandler = () => {
-    console.log('leftTop')
     moveHandler('y', 'x')
   }
   const moveRightBottomHandler = () => {
-    console.log('rightBottom')
     moveHandler('x', 'y')
   }
   const moveLeftBottomHandler = () => {
-    console.log('leftBottom')
     moveHandler('z', 'x')
   }
   const moveRightTopHandler = () => {
-    console.log('rightTop')
     moveHandler('x', 'z')
   }
 
@@ -161,27 +107,71 @@ const App = () => {
 
     })
   }
+  const chooseGameVariant = (variant: number) => {
+    dispatch(setPlaying(false))
+    dispatch(clearCells())
+    dispatch(setGridSize(variant))
+    dispatch(setGrid(variant === 2 ? gameGrid2 : gameGrid3))
+    addFetchCells(variant)
+  }
 
+  const memoizedCallback = useCallback(
+    (evt) => {
+      switch (evt.key) {
+        case 'q':
+          moveLeftTopHandler()
+          break
+        case 'w':
+          moveUpHandler()
+          break
+        case 'e':
+          moveRightTopHandler()
+          break
+        case 'a':
+          moveLeftBottomHandler()
+          break
+        case 's':
+          moveDownHandler()
+          break
+        case 'd':
+          moveRightBottomHandler()
+          break
+        case 't':
+          console.log(grid)
+          break
+        default:
+          break
+      }
+    },
+    [
+      step, gridSize,
+      moveUpHandler, moveDownHandler,
+      moveLeftTopHandler, moveRightBottomHandler,
+      moveLeftBottomHandler, moveRightTopHandler
+    ]
+  );
+
+  useEffect(() => {
+    if (playing) {
+      document.addEventListener('keydown', memoizedCallback)
+    } else {
+      document.removeEventListener('keydown', memoizedCallback)
+    }
+    return () => {
+      document.removeEventListener('keydown', memoizedCallback)
+    }
+  }, [playing, step])
   return (
     <>
       <main className={styles.app}>
         <section className={styles.gameVariant}>
           <p>{`Game size: ${gridSize}`}</p>
-
           <div className={styles.variantControls}>
             <button onClick={() => {
-              dispatch(setPlaying(false))
-              dispatch(clearCells())
-              dispatch(setGridSize(2))
-              dispatch(setGrid(gameGrid2))
-              addFetchCells(2)
+              chooseGameVariant(2)
             }}>2</button>
             <button onClick={() => {
-              dispatch(setPlaying(false))
-              dispatch(clearCells())
-              dispatch(setGridSize(3))
-              dispatch(setGrid(gameGrid3))
-              addFetchCells(3)
+              chooseGameVariant(3)
             }}>3</button>
           </div>
         </section>
@@ -190,7 +180,7 @@ const App = () => {
           <Grid />
         </section>
         <section className={styles.gameStatus}>
-          <p>{`Game status: ${playing ? 'plaing' : 'stopped'}`}</p>
+          <p>{`Game status: ${playing ? 'playing' : 'game over'}`}</p>
           <div className={styles.gameControls}>
             <button onClick={() => {
               moveLeftTopHandler()

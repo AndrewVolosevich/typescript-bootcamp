@@ -7,7 +7,8 @@ export const slice = createSlice({
   initialState: {
     grid: gameGrid2,
     size: 2,
-    playing: false
+    playing: false,
+    gameStep: 0
   },
   reducers: {
     setGridSize: (state, action) => {
@@ -33,22 +34,23 @@ export const slice = createSlice({
       if (state.grid[idx]) {
         state.grid[idx].value = action.payload.value
       }
-    }
+    },
+    addStep: (state) => {
+      state.gameStep += 1
+    },
   },
 });
 
 export const {
   setGridSize, setGrid,
   clearCells, setCell,
-  setPlaying, clearCellValue
+  setPlaying, clearCellValue,
+  addStep
 } = slice.actions;
-// export const incrementAsync = amount => dispatch => {
-//   setTimeout(() => {
-//     dispatch(incrementByAmount(amount));
-//   }, 1000);
-// };
+
 
 export const selectSize = state => state.game.size;
 export const selectGrid = state => state.game.grid;
 export const selectPlaying = state => state.game.playing;
+export const selectStep = state => state.game.gameStep;
 export default slice.reducer;
