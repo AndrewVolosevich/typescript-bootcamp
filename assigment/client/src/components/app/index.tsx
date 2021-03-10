@@ -123,7 +123,7 @@ const App = () => {
           <Grid />
         </section>
         <section className={styles.gameStatus}>
-          <p>{`Game status: ${playing ? 'playing' : 'game-over'}`}</p>
+          <p className={styles.status}>{`Game status: ${playing ? 'playing' : 'game-over'}`}</p>
           <p>Use q, w, e, a, s, d keys for move</p>
         </section>
       </main>

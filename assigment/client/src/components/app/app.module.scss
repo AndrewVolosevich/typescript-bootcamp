@@ -7,7 +7,7 @@
   align-items: center;
 
   &>section {
-    padding-bottom: 20px;
+    margin-bottom: 10px;
   }
 }
 
@@ -19,4 +19,12 @@
   button {
     width: 33%;
   }
+}
+
+.status {
+  margin-top: 10px;
+  border-radius: 4px;
+  background-color: rgb(249, 245, 241);
+  border: 1px solid rgb(233, 229, 225);
+  padding: 10px 10px 8px;
 }
