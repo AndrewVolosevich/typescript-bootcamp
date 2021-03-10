@@ -1,15 +1,17 @@
 import {Cell} from "../types/game";
 
-export const getSortCells = (arr: Cell[], maxIndex: string, minIndex: string) => {
+export const getSortedCells = (arr: Cell[], maxIndex?: string, minIndex?: string) => {
   const filteredArr = arr.filter(cell => cell.value !== 0)
-  const resp = filteredArr.slice()
-    .slice().sort((a, b) => {
-      return b[maxIndex] - a[maxIndex]
-    })
-    .slice().sort((a, b) => {
-      return a[minIndex] - b[minIndex]
-    })
-  return resp
+  if (maxIndex && minIndex) {
+    return filteredArr.slice()
+        .slice().sort((a, b) => {
+          return b[maxIndex] - a[maxIndex]
+        })
+        .slice().sort((a, b) => {
+          return a[minIndex] - b[minIndex]
+        })
+  }
+  return filteredArr
 }
 
 export const compareCellsCoords = (cell1: Cell, cell2: Cell) => {

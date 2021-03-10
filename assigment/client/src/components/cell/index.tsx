@@ -8,12 +8,13 @@ const Cell = (props: {
   x: number,
   y: number,
   z: number,
-  value: number
+  value: number,
+  id: string,
 }) => {
   const cellRef = useRef(null)
   const size = useSelector(selectSize)
 
-  const cellClasses = classNames(styles.element, {
+  const cellClasses = classNames(styles.element, 'cell', {
     [styles.size3]: size === 3,
     [styles.size4]: size === 4,
   })
@@ -22,6 +23,7 @@ const Cell = (props: {
      <div
        ref={cellRef}
        className={cellClasses}
+       id={props.id}
        data-value={props.value}
        data-x={props.x}
        data-y={props.y}

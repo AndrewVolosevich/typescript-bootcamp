@@ -9,16 +9,19 @@ import {
   addStep,
   selectSize, selectGrid, selectPlaying, selectStep
 } from '../../store/features/game/gameSlice';
+import {selectAnimatedCells, setWidth, setCellsWithValues, changeAnimationCell} from '../../store/features/game/animationSlice'
 import api from '../../api/serverApi'
-import {getCellIdx, getSortCells, isCellExist} from "../../helpers/cellHelpers";
+import {getCellIdx, getSortedCells, isCellExist} from "../../helpers/cellHelpers";
 import {Cell} from "../../types/game";
 import GameVariant from "../game-variant";
+import AnimationGrid from "../animation-grid";
 
 const App = () => {
   const gridSize = useSelector(selectSize)
   const grid = useSelector(selectGrid)
   const playing = useSelector(selectPlaying)
   const step = useSelector(selectStep)
+  const animationGrid = useSelector(selectAnimatedCells)
   const dispatch = useDispatch()
 
   const memoKeyPressHandler = useCallback(
@@ -47,6 +50,7 @@ const App = () => {
             newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value * 2
             newGridValue[getCellIdx(newGridValue, newCell)].isChanged = true
             newGridValue[getCellIdx(newGridValue, cell)].value = 0
+            dispatch(changeAnimationCell([cell, newCell]))
             return checkNext(newGridValue, newCell, max, min)
           }
         }
@@ -54,21 +58,22 @@ const App = () => {
       }
       function moveHandler(max: string, min: string) {
         if (playing) {
-          let innerGrid = JSON.parse(JSON.stringify(grid))
-          getSortCells(grid,  max, min).forEach(cell => {
-            innerGrid = checkNext(innerGrid, cell, max, min)
+          let gridWithChanges = JSON.parse(JSON.stringify(grid))
+          const cellsWithValues = getSortedCells(grid,  max, min)
+          cellsWithValues.forEach(cell => {
+            gridWithChanges = checkNext(gridWithChanges, cell, max, min)
           })
           dispatch(clearCells())
-          innerGrid.forEach(cell => dispatch(setCell(cell)))
+          gridWithChanges.forEach(cell => dispatch(setCell(cell)))
+          dispatch(setCellsWithValues(cellsWithValues))
           const isFull = () => {
-            return !innerGrid.filter(item => item.value === 0).length
+            return !gridWithChanges.filter(item => item.value === 0).length
           }
           if (isFull()) {
             dispatch(setPlaying(false))
           } else {
-            const filledCells = getSortCells(innerGrid,  max, min)
             api
-              .uploadNewData(gridSize, filledCells)
+              .uploadNewData(gridSize, cellsWithValues)
               .then(resp => {
                 resp.data.forEach(item => {
                   dispatch(setCell(item))
@@ -114,12 +119,23 @@ const App = () => {
       document.removeEventListener('keydown', memoKeyPressHandler)
     }
   }, [playing, step, memoKeyPressHandler])
+  const resizeHandler = () => {
+    dispatch(setWidth(window.innerWidth))
+  }
+  useEffect(() => {
+    resizeHandler()
+    window.addEventListener('resize', resizeHandler)
+    return () => {
+      window.removeEventListener('resize', resizeHandler)
+    }
+  }, [])
 
   return (
     <>
       <main className={styles.app}>
         <GameVariant />
         <section className={styles.gameGrid} >
+          <AnimationGrid grid={animationGrid} />
           <Grid />
         </section>
         <section className={styles.gameStatus}>

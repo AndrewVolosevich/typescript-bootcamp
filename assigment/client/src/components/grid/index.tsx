@@ -34,7 +34,7 @@ const Grid = () => {
   }, [size])
 
   return (
-    <div className={styles.wrapper} style={{transform: 'translateX(9%)'}}>
+    <div className={styles.wrapper} style={{transform: 'translateX(12%)'}}>
       {
         gridColums.map((col, colN) => (
           <section key={colN} style={{right: `${colN/3*cellSize}px`}}>
@@ -44,6 +44,7 @@ const Grid = () => {
                   return (
                     <Cell
                       key={`${cell.x}-${cell.y}-${cell.z}`}
+                      id={`${cell.x}-${cell.y}-${cell.z}`}
                       x={cell.x}
                       y={cell.y}
                       z={cell.z}
