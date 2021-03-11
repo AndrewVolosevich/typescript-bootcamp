@@ -1,6 +1,6 @@
 .animatedCell {
   position: absolute;
-  z-index: 100;
+  //z-index: 100;
   width: 160px;
   height: 138px;
   margin-bottom: -10px;
@@ -10,6 +10,7 @@
   -webkit-box-align: center;
   align-items: center;
   flex-wrap: wrap;
+  transition: all ease-in-out 500ms;
 
   animation: appear 1s;
 
@@ -17,8 +18,10 @@
     width: 60%;
     height: 60%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    color: yellowgreen;
+    margin-right: 5px;
     background-color: indianred;
     border-radius: 60%;
   }
@@ -49,4 +52,48 @@
     transform: scale(1, 1);
     opacity: 1;
   }
+}
+
+.color-2 {
+  background-color: #50C8FF;
+}
+
+.color-4 {
+  background-color: green;
+}
+
+.color-8 {
+  background-color: red;
+}
+
+.color-16 {
+  background-color: orange;
+}
+
+.color-32 {
+  background-color: yellow;
+}
+
+.color-64 {
+  background-color: blue;
+}
+
+.color-128 {
+  background-color: purple;
+}
+
+.color-256 {
+  background-color: pink;
+}
+
+.color-512 {
+  background-color: #50C8FF;
+}
+
+.color-1024 {
+  background-color: green;
+}
+
+.color-2048 {
+  background-color: blue;
 }

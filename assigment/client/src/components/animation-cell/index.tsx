@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import classNames from 'classnames';
 import styles from "./animation-cell.module.scss"
 import {selectAnimatedCells, selectWidth} from "../../store/features/game/animationSlice";
-import {selectSize} from "../../store/features/game/gameSlice";
+import {selectPlaying, selectSize} from "../../store/features/game/gameSlice";
 
 const AnimationCell = (props: {
   x: number,
@@ -13,8 +13,9 @@ const AnimationCell = (props: {
 }) => {
   const [startLeft, setStartLeft] = useState<number>(0)
   const [startTop, setStartTop] = useState<number>(0)
-  const ggg = useSelector(selectAnimatedCells)
+  const animatedCells = useSelector(selectAnimatedCells)
   const size = useSelector(selectSize)
+  const playing = useSelector(selectPlaying)
   const deviceWidth = useSelector(selectWidth)
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const AnimationCell = (props: {
       setStartLeft(x)
       setStartTop(y)
     }
-  }, [ggg, deviceWidth])
+  }, [animatedCells.length, deviceWidth, size, playing])
 
   const cellClasses = classNames(styles.animatedCell, {
     [styles.size3]: size === 3,

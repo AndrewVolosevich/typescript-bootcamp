@@ -9,7 +9,11 @@ import {
   addStep,
   selectSize, selectGrid, selectPlaying, selectStep
 } from '../../store/features/game/gameSlice';
-import {selectAnimatedCells, setWidth, setCellsWithValues, changeAnimationCell} from '../../store/features/game/animationSlice'
+import {
+  selectAnimatedCells, setWidth,
+  addCellsWithValues, changeAnimationCell,
+  removeCellsWithValues,
+} from '../../store/features/game/animationSlice'
 import api from '../../api/serverApi'
 import {getCellIdx, getSortedCells, isCellExist} from "../../helpers/cellHelpers";
 import {Cell} from "../../types/game";
@@ -21,7 +25,6 @@ const App = () => {
   const grid = useSelector(selectGrid)
   const playing = useSelector(selectPlaying)
   const step = useSelector(selectStep)
-  const animationGrid = useSelector(selectAnimatedCells)
   const dispatch = useDispatch()
 
   const memoKeyPressHandler = useCallback(
@@ -42,6 +45,7 @@ const App = () => {
           if (newGridValue[getCellIdx(newGridValue, newCell)].value === 0) {
             newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value
             newGridValue[getCellIdx(newGridValue, cell)].value = 0
+            dispatch(changeAnimationCell([cell, newCell]))
             return checkNext(newGridValue, newCell, max, min)
           } else if (
             newGridValue[getCellIdx(newGridValue, newCell)].value === cell.value &&
@@ -50,7 +54,8 @@ const App = () => {
             newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value * 2
             newGridValue[getCellIdx(newGridValue, newCell)].isChanged = true
             newGridValue[getCellIdx(newGridValue, cell)].value = 0
-            dispatch(changeAnimationCell([cell, newCell]))
+            dispatch(removeCellsWithValues(newCell))
+            dispatch(changeAnimationCell([cell, newGridValue[getCellIdx(newGridValue, newCell)]]))
             return checkNext(newGridValue, newCell, max, min)
           }
         }
@@ -65,7 +70,6 @@ const App = () => {
           })
           dispatch(clearCells())
           gridWithChanges.forEach(cell => dispatch(setCell(cell)))
-          dispatch(setCellsWithValues(cellsWithValues))
           const isFull = () => {
             return !gridWithChanges.filter(item => item.value === 0).length
           }
@@ -77,6 +81,7 @@ const App = () => {
               .then(resp => {
                 resp.data.forEach(item => {
                   dispatch(setCell(item))
+                  dispatch(addCellsWithValues(item))
                 })
               })
               .then(() => dispatch(addStep()))
@@ -135,12 +140,20 @@ const App = () => {
       <main className={styles.app}>
         <GameVariant />
         <section className={styles.gameGrid} >
-          <AnimationGrid grid={animationGrid} />
+          {/*<AnimationGrid />*/}
           <Grid />
         </section>
         <section className={styles.gameStatus}>
           <p className={styles.status}>{`Game status: ${playing ? 'playing' : 'game-over'}`}</p>
           <p>Use q, w, e, a, s, d keys for move</p>
+          <button onClick={() => {
+            dispatch(removeCellsWithValues({
+              x: 0,
+              y: 0,
+              z: 0,
+              value: 2
+            }))
+          }}>test</button>
         </section>
       </main>
     </>

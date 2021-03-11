@@ -15,6 +15,12 @@ export const slice = createSlice({
         addCellsWithValues: (state, action: PayloadAction<Cell>) => {
             state.cellsWithValues = [...state.cellsWithValues, action.payload]
         },
+        removeCellsWithValues: (state, action: PayloadAction<Cell>) => {
+            const idx = getCellIdx(state.cellsWithValues, action.payload)
+            if (state.cellsWithValues[idx]) {
+                state.cellsWithValues.splice(idx, 1)
+            }
+        },
         changeAnimationCell: (state, action: PayloadAction<Cell[]>) => {
             const idx = getCellIdx(state.cellsWithValues, action.payload[0])
             if (state.cellsWithValues[idx]) {
@@ -30,7 +36,7 @@ export const slice = createSlice({
 
 export const {
     setCellsWithValues, addCellsWithValues, setWidth,
-    changeAnimationCell,
+    changeAnimationCell, removeCellsWithValues
 } = slice.actions;
 
 export const selectAnimatedCells = state => state.animation.cellsWithValues;
