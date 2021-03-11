@@ -44,6 +44,7 @@ const Grid = () => {
                   return (
                     <Cell
                       key={`${cell.x}-${cell.y}-${cell.z}`}
+                      id={`${cell.x}-${cell.y}-${cell.z}`}
                       x={cell.x}
                       y={cell.y}
                       z={cell.z}
