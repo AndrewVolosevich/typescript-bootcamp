@@ -10,15 +10,16 @@ import {
   selectSize, selectGrid, selectPlaying, selectStep
 } from '../../store/features/game/gameSlice';
 import {
-  selectAnimatedCells, setWidth,
+  setWidth,
   addCellsWithValues, changeAnimationCell,
   removeCellsWithValues,
 } from '../../store/features/game/animationSlice'
 import api from '../../api/serverApi'
-import {getCellIdx, getSortedCells, isCellExist} from "../../helpers/cellHelpers";
+import {compareCellsCoords, getCellIdx, getSortedCells, isCellExist} from "../../helpers/cellHelpers";
 import {Cell} from "../../types/game";
 import GameVariant from "../game-variant";
 import AnimationGrid from "../animation-grid";
+import hash from "object-hash"
 
 const App = () => {
   const gridSize = useSelector(selectSize)
@@ -42,20 +43,21 @@ const App = () => {
         newCell[min] -= 1
 
         if (isCellExist(gridValue, newCell)) {
-          if (newGridValue[getCellIdx(newGridValue, newCell)].value === 0) {
-            newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value
+          const newCellIdx = getCellIdx(newGridValue, newCell)
+          if (newGridValue[newCellIdx].value === 0) {
+            newGridValue[newCellIdx].value = cell.value
             newGridValue[getCellIdx(newGridValue, cell)].value = 0
             dispatch(changeAnimationCell([cell, newCell]))
             return checkNext(newGridValue, newCell, max, min)
           } else if (
-            newGridValue[getCellIdx(newGridValue, newCell)].value === cell.value &&
-            !newGridValue[getCellIdx(newGridValue, newCell)].isChanged
+            newGridValue[newCellIdx].value === cell.value &&
+            !newGridValue[newCellIdx].isChanged
           ) {
-            newGridValue[getCellIdx(newGridValue, newCell)].value = cell.value * 2
-            newGridValue[getCellIdx(newGridValue, newCell)].isChanged = true
+            newGridValue[newCellIdx].value = cell.value * 2
+            newGridValue[newCellIdx].isChanged = true
             newGridValue[getCellIdx(newGridValue, cell)].value = 0
             dispatch(removeCellsWithValues(newCell))
-            dispatch(changeAnimationCell([cell, newGridValue[getCellIdx(newGridValue, newCell)]]))
+            dispatch(changeAnimationCell([cell, newGridValue[newCellIdx]]))
             return checkNext(newGridValue, newCell, max, min)
           }
         }
@@ -79,10 +81,19 @@ const App = () => {
             api
               .uploadNewData(gridSize, cellsWithValues)
               .then(resp => {
-                resp.data.forEach(item => {
+                resp.data.forEach((item) => {
                   dispatch(setCell(item))
-                  dispatch(addCellsWithValues(item))
                 })
+
+                grid.filter(item => {
+                  let isExist = false
+                  resp.data.forEach(downloadItem => {
+                    if (compareCellsCoords(downloadItem, item)) {
+                      isExist = true
+                    }
+                  })
+                  return isExist
+                }).forEach(item => dispatch(addCellsWithValues(item)))
               })
               .then(() => dispatch(addStep()))
           }
@@ -140,7 +151,7 @@ const App = () => {
       <main className={styles.app}>
         <GameVariant />
         <section className={styles.gameGrid} >
-          {/*<AnimationGrid />*/}
+          <AnimationGrid />
           <Grid />
         </section>
         <section className={styles.gameStatus}>

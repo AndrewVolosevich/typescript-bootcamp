@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useState} from "react";
-import { useSelector, useDispatch } from 'react-redux';
+import React, {useEffect, useState} from "react";
+import { useSelector } from 'react-redux';
 import classNames from 'classnames';
 import styles from "./animation-cell.module.scss"
 import {selectAnimatedCells, selectWidth} from "../../store/features/game/animationSlice";
@@ -13,6 +13,7 @@ const AnimationCell = (props: {
 }) => {
   const [startLeft, setStartLeft] = useState<number>(0)
   const [startTop, setStartTop] = useState<number>(0)
+  const [isReady, setIsReady] = useState<boolean>(false)
   const animatedCells = useSelector(selectAnimatedCells)
   const size = useSelector(selectSize)
   const playing = useSelector(selectPlaying)
@@ -28,7 +29,7 @@ const AnimationCell = (props: {
       setStartLeft(x)
       setStartTop(y)
     }
-  }, [animatedCells.length, deviceWidth, size, playing])
+  }, [animatedCells.length, deviceWidth, size, playing, props.x, props.y, props.y])
 
   const cellClasses = classNames(styles.animatedCell, {
     [styles.size3]: size === 3,
@@ -37,7 +38,6 @@ const AnimationCell = (props: {
   return (
     <div
       className={cellClasses}
-      // @ts-ignore
       style={{left: `${startLeft}px`, top: `${startTop}px`}}
       data-value={props.value}
       data-x={props.x}
@@ -49,6 +49,6 @@ const AnimationCell = (props: {
   );
 }
 
-export default AnimationCell;
+export default React.memo(AnimationCell);
 
 

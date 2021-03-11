@@ -31,7 +31,7 @@ const Cell = (props: {
        data-y={props.y}
        data-z={props.z}
      >
-       <CellImg />
+       {/*<CellImg />*/}
        <span>{props.value === 0 ? ' ' : props.value}</span>
      </div>
    </>

@@ -1,6 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from 'react-redux';
-import styles from "./animation-grid.module.scss"
+import { useSelector } from 'react-redux';
 import {selectAnimatedCells} from "../../store/features/game/animationSlice";
 import AnimationCell from "../animation-cell";
 

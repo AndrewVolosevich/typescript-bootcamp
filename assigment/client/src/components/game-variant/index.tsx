@@ -1,32 +1,44 @@
-import React, {useEffect} from "react";
+import React from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  clearCells,
-  selectGrid,
+  clearCells, selectGrid,
   selectSize,
   setCell,
   setGrid,
   setGridSize,
   setPlaying
 } from "../../store/features/game/gameSlice";
-import {selectAnimatedCells, setCellsWithValues} from "../../store/features/game/animationSlice";
+import {setCellsWithValues} from "../../store/features/game/animationSlice";
 import styles from "./game-variant.module.scss";
 import api from "../../api/serverApi";
 import {gameGrid2, gameGrid3, gameGrid4} from "../../moky/gameGrid";
+import hash from "object-hash"
+import {Cell} from "../../types/game";
+import {compareCellsCoords} from "../../helpers/cellHelpers";
 
 const GameVariant = () => {
   const size = useSelector(selectSize)
   const grid = useSelector(selectGrid)
-  const animatedCells = useSelector(selectAnimatedCells)
 
   const dispatch = useDispatch()
   const addFetchCells = (fieldSize: number) => {
     api.getStartData(fieldSize)
       .then(resp => {
-        const addedCells = resp.data
-        addedCells.forEach((newCell => {
+        resp.data.forEach((newCell) => {
           dispatch(setCell(newCell))
-        }))
+        })
+        return resp.data
+      })
+      .then((resp: Cell[]) => {
+        const addedCells = grid.filter(item => {
+          let isExist = false
+          resp.forEach(downloadItem => {
+            if (compareCellsCoords(downloadItem, item)) {
+              isExist = true
+            }
+          })
+          return isExist
+        })
         dispatch(setCellsWithValues(addedCells))
       })
       .then(() => {
@@ -38,11 +50,11 @@ const GameVariant = () => {
     dispatch(clearCells())
     dispatch(setGridSize(variant))
     dispatch(setGrid(
-      variant === 2
+      (variant === 2
         ? gameGrid2
         : variant === 3
         ? gameGrid3
-        : gameGrid4
+        : gameGrid4).map(item => ({...item, id: hash(item)}))
     ))
     addFetchCells(variant)
   }

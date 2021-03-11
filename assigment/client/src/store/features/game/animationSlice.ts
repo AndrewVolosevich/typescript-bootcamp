@@ -24,7 +24,8 @@ export const slice = createSlice({
         changeAnimationCell: (state, action: PayloadAction<Cell[]>) => {
             const idx = getCellIdx(state.cellsWithValues, action.payload[0])
             if (state.cellsWithValues[idx]) {
-                state.cellsWithValues[idx] = action.payload[1]
+                const {x, y, z, value} = action.payload[1]
+                state.cellsWithValues[idx] = {...state.cellsWithValues[idx], x, y, z, value}
             }
         },
 
